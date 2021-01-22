@@ -1,4 +1,5 @@
-##gittry#
+
+jiubu
 
 
 setwd("/Volumes/CL 工作硬盘/scdc信息所/各区工作一览表/2020死亡报卡一览表/每月上交数据/12月")
