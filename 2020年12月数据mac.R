@@ -1,3 +1,6 @@
+##gittry#
+
+
 setwd("/Volumes/CL 工作硬盘/scdc信息所/各区工作一览表/2020死亡报卡一览表/每月上交数据/12月")
 getwd()
 
@@ -5,8 +8,7 @@ library(readxl)
 library(dplyr)
 library(openxlsx)
 library(lubridate)
-library(data.table)
-library(tidyverse)
+library(tidyverse)  #trytry
 rm(list=ls())
 
 #-----2020年12月死亡数据库导入-------------class(ndeath113)
