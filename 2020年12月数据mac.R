@@ -88,7 +88,7 @@ colnames(ndeath118n12) <- cols
 colnames(ndeath120n12) <- cols
 colnames(ndeath151n12) <- cols
 
-
+table(Totaldeath12$x20,Totaldeath12$x21)
 totalsepn12<-rbind(ndeath101n12,ndeath104n12,ndeath105n12,ndeath106n12,
                   ndeath107n12,ndeath109n12,ndeath110n12,ndeath112n12,
                   ndeath113n12,ndeath114n12,ndeath116n12,ndeath115n12,
@@ -173,6 +173,8 @@ Lei
 Totaldeath12<-rbind(totalseph12,totalsepn12)
 Totaldeath12$根本死因代码<-toupper(Totaldeath12$根本死因代码)
 rm(list=ls(pattern="death"))
+Totaldeath12<-rbind(totalseph12,totalsepn12)
+Totaldeath12$根本死因代码<-toupper(Totaldeath12$根本死因代码)
 
 names_death <- names(Totaldeath12)
 names(Totaldeath12) <- paste0('x', 1 : ncol(Totaldeath12))
@@ -242,15 +244,12 @@ Totaldeath12$qdis<-car::recode(Totaldeath12$x146,"'黄浦区'=101;
                                                   '奉贤区'=120;
                                                   '崇明区'=151")
 
+Totaldeath12<- Totaldeath12 %>% filter(qdis=='107')
 attach(Totaldeath12)
 table(x120,x121,useNA = "ifany")
 
-re<-Totaldeath12 %>% 
- filter(grepl("I10|I70",x57)|grepl("I10|I70",x60)|grepl("I10|I70",x63)|
-        grepl("I10|I70",x66))
 
-
-#Totaldeath12<-Totaldeath12 %>% filter(qdis=="101")
+、
 #----------年龄计算是否一致--------------
 Totaldeath_agenot<-Totaldeath12 %>% filter(x29=="岁",agea!=x28)%>%
   mutate(wrongre="年龄计算错误")
@@ -393,13 +392,13 @@ filter(x30=="01") %>%
 
 #--------重复编码---------- 
 
-qc_7<-Totaldeath12 %>%
-  filter(substr(x57,1,3)==substr(x60,1,3)|substr(x57,1,3)==substr(x63,1,3)|
-         substr(x57,1,3)==substr(x66,1,3)|substr(x57,1,3)==substr(x69,1,3)|
-         substr(x60,1,3)==substr(x63,1,3)|substr(x60,1,3)==substr(x66,1,3)|
-         substr(x60,1,3)==substr(x69,1,3)|substr(x63,1,3)==substr(x66,1,3)|
-         substr(x63,1,3)==substr(x69,1,3)|substr(x66,1,3)==substr(x69,1,3))%>%
-mutate(wrongre="重复编码")
+#qc_7<-Totaldeath12 %>%
+ # filter(substr(x57,1,3)==substr(x60,1,3)|substr(x57,1,3)==substr(x63,1,3)|
+  #       substr(x57,1,3)==substr(x66,1,3)|substr(x57,1,3)==substr(x69,1,3)|
+   #      substr(x60,1,3)==substr(x63,1,3)|substr(x60,1,3)==substr(x66,1,3)|
+    #     substr(x60,1,3)==substr(x69,1,3)|substr(x63,1,3)==substr(x66,1,3)|
+    #     substr(x63,1,3)==substr(x69,1,3)|substr(x66,1,3)==substr(x69,1,3))%>%
+#mutate(wrongre="重复编码")
 
 #--------病房内死亡死因不明或高血压---------- 
 qc_8<-Totaldeath12 %>%
@@ -594,10 +593,10 @@ Totaldeath_a69 <- Totaldeath12 %>%
 
 #------------ 02－零概率17-伤害内外因时间对应错误 -----------------
 qc2_17a<- Totaldeath12 %>% 
-      filter(x83>="V00"&x83<"Y85",x57>="T90"&x57<"T98"|x60>="T90"&x60<"T98"|x63>="T90"&x63<"T98"|x66>="T90"&x66<"T98")%>% 
+     filter(x83>="V00"&x83<"Y85",x57>="T90"&x57<"T98"|x60>="T90"&x60<"T98"|x63>="T90"&x63<"T98"|x66>="T90"&x66<"T98")%>% 
       mutate(wrongre="伤害内外因时间对应错误")
 qc2_17b<- Totaldeath12 %>% 
-      filter(x83>="Y85",x57>="S00"&x57<"T90"|x60>="S00"&x60<"T90"|x63>="S00"&x63<"T90"|x66>="S00"&x66<"T90")%>% 
+     filter(x83>="Y85",x57>="S00"&x57<"T90"|x60>="S00"&x60<"T90"|x63>="S00"&x63<"T90"|x66>="S00"&x66<"T90")%>% 
       mutate(wrongre="伤害内外因时间对应错误") 
 
 
@@ -721,7 +720,14 @@ qc3_11<-Totaldeath12 %>%
      filter(grepl("D48.9|Y59.0|J69.0|E87|K56.7|J31|A81.0|I20",x83))%>%
        mutate(wrongre="其他应核实疾病")  
      
-     
+#-------------死因提及,根本死因不为HIV-------------------------
+ qc2_18<- Totaldeath12 %>%  
+   filter(x57>="B20"&x57<"B25"|x60>="B20"&x60<"B25"|
+          x63>="B20"&x63<"B24"|x66>="B20"&x66<"B25",x124!="14")%>%
+   mutate(wrongre="死因提及,根本死因不为HIV") 
+   
+
+
  #-----合并所有符合条件的数据框-----------------
      temp<-ls(pattern = "_")[-1]
      temp<-temp[-1]
@@ -742,7 +748,7 @@ qc3_11<-Totaldeath12 %>%
      
      re<-as.data.frame(table(merge.data$qdis,merge.data$wrongre,useNA = "ifany"))
     names(merge.data) [1:146]<-cols
-     write.xlsx(merge.data,"/Volumes/CL 工作硬盘/SCDC信息所/各区工作一览表/2020死亡报卡一览表/每月上交数据/12月/所有审核有问题的数据all.xlsx")
+     write.xlsx(merge.data,"/Volumes/CL 工作硬盘/SCDC信息所/各区工作一览表/2020死亡报卡一览表/每月上交数据/12月/所有审核有问题的数据107.xlsx")
      
      outall<-all %>% dplyr::select(x1:x145,wrongre,x124,审核区县)
      
